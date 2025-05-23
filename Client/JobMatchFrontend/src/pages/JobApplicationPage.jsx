@@ -15,9 +15,9 @@ const JobApplicationPage = () => {
   useEffect(() => {
     const fetchJob = async () => {
       try {
-        const res = await axios.get(`http://localhost:3000/api/jobs/${id}`);
+        const res = await axios.get(`https://jobmatch-ixrz.onrender.com/api/jobs/${id}`);
         // Fetch employer profile to get company name
-        const employerProfileRes = await axios.get(`http://localhost:3000/api/employer/profile/${res.data.employer._id}`);
+        const employerProfileRes = await axios.get(`https://jobmatch-ixrz.onrender.com/api/employer/profile/${res.data.employer._id}`);
         setJob({
           ...res.data,
           companyName: employerProfileRes.data.companyName || 'Unknown',
@@ -38,7 +38,7 @@ const JobApplicationPage = () => {
       formData.append('resume', resume);
       formData.append('coverLetter', coverLetter);
 
-      await axios.post(`http://localhost:3000/api/jobs/${id}/apply`, formData, {
+      await axios.post(`https://jobmatch-ixrz.onrender.com/api/jobs/${id}/apply`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

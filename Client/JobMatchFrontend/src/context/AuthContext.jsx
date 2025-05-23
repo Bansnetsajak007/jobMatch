@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const res = await axios.post('http://localhost:3000/api/auth/login', { email, password });
+      const res = await axios.post('https://jobmatch-ixrz.onrender.com/api/auth/login', { email, password });
       setToken(res.data.token);
       localStorage.setItem('token', res.data.token);
       const decoded = JSON.parse(atob(res.data.token.split('.')[1]));
@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (email, password, role) => {
     try {
-      const res = await axios.post('http://localhost:3000/api/auth/signup', { email, password, role });
+      const res = await axios.post('https://jobmatch-ixrz.onrender.com/api/auth/signup', { email, password, role });
       setToken(res.data.token);
       localStorage.setItem('token', res.data.token);
       const decoded = JSON.parse(atob(res.data.token.split('.')[1]));

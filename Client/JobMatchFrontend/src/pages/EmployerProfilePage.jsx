@@ -15,7 +15,7 @@ const EmployerProfilePage = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await axios.get('http://localhost:3000/api/employer/profile');
+        const res = await axios.get('https://jobmatch-ixrz.onrender.com/api/employer/profile');
         setProfile(res.data);
       } catch (error) {
         console.error('Error fetching profile:', error);
@@ -32,7 +32,7 @@ const EmployerProfilePage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:3000/api/employer/profile', profile);
+      await axios.post('https://jobmatch-ixrz.onrender.com/api/employer/profile', profile);
       alert('Profile updated successfully!');
       navigate('/employer/dashboard');
     } catch (error) {

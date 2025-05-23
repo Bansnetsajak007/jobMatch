@@ -19,7 +19,7 @@ const StudentProfilePage = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await axios.get('http://localhost:3000/api/student/profile');
+        const res = await axios.get('https://jobmatch-ixrz.onrender.com/api/student/profile');
         setProfile(res.data);
       } catch (error) {
         console.error('Error fetching profile:', error);
@@ -63,7 +63,7 @@ const StudentProfilePage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:3000/api/student/profile', profile);
+      await axios.post('https://jobmatch-ixrz.onrender.com/api/student/profile', profile);
       alert('Profile updated successfully!');
       navigate('/student/dashboard');
     } catch (error) {

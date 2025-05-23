@@ -11,7 +11,7 @@ const StudentDashboard = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await axios.get('http://localhost:3000/api/student/profile');
+        const res = await axios.get('https://jobmatch-ixrz.onrender.com/api/student/profile');
         setProfile(res.data);
         calculateProfileCompletion(res.data);
       } catch (error) {
@@ -21,7 +21,7 @@ const StudentDashboard = () => {
 
     const fetchJobs = async () => {
       try {
-        const res = await axios.get('http://localhost:3000/api/jobs');
+        const res = await axios.get('https://jobmatch-ixrz.onrender.com/api/jobs');
         console.log('Jobs response:', res.data); // Debug log to inspect the response
         const jobsWithMatchScore = res.data.map(job => {
           const companyName = job.employer && job.employer.companyName ? job.employer.companyName : 'Unknown';
