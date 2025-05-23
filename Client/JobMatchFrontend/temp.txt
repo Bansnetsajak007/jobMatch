@@ -1,0 +1,22 @@
+jobmatch-frontend/
+├── src/
+│   ├── assets/                   # Static assets like logos
+│   ├── components/               # Reusable components
+│   │   ├── Navbar.jsx
+│   │   ├── JobCard.jsx
+│   │   └── Button.jsx
+│   ├── pages/                    # Page components
+│   │   ├── LandingPage.jsx
+│   │   ├── LoginPage.jsx
+│   │   ├── RegisterPage.jsx
+│   │   ├── StudentDashboard.jsx
+│   │   ├── EmployerDashboard.jsx
+│   │   └── JobApplicationPage.jsx
+│   ├── context/                  # Context for auth state
+│   │   └── AuthContext.jsx
+│   ├── App.jsx
+│   ├── index.css
+│   └── main.jsx
+├── tailwind.config.js
+├── package.json
+└── vite.config.js
