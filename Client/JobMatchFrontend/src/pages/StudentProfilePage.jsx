@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Button from '../components/Button';
 
 const StudentProfilePage = () => {
-  const [profile, setProfile] = useState({
+  // Initial profile state structure
+  const initialProfile = {
     firstName: '',
     lastName: '',
     address: '',
@@ -12,270 +12,343 @@ const StudentProfilePage = () => {
     experience: [{ company: '', role: '', startDate: '', endDate: '', description: '' }],
     resume: '',
     skills: [],
-  });
-  const [newSkill, setNewSkill] = useState('');
-  const navigate = useNavigate();
+  };
 
+  const [profile, setProfile] = useState(initialProfile);
+  const [newSkill, setNewSkill] = useState('');
+  const [isProfileCreated, setIsProfileCreated] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  // Fetch profile data on mount
   useEffect(() => {
     const fetchProfile = async () => {
+      setLoading(true);
       try {
         const res = await axios.get('https://jobmatch-ixrz.onrender.com/api/student/profile');
-        setProfile(res.data);
+        if (res.data && res.data.firstName) {
+          setProfile(res.data);
+          setIsProfileCreated(true);
+        }
       } catch (error) {
         console.error('Error fetching profile:', error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchProfile();
   }, []);
 
+  // Handle changes in inputs, including nested sections like education & experience
   const handleInputChange = (e, section, index) => {
     const { name, value } = e.target;
     if (section) {
       const updatedSection = [...profile[section]];
-      updatedSection[index][name] = value;
-      setProfile({ ...profile, [section]: updatedSection });
+      updatedSection[index] = { ...updatedSection[index], [name]: value };
+      setProfile(prev => ({ ...prev, [section]: updatedSection }));
     } else {
-      setProfile({ ...profile, [name]: value });
+      setProfile(prev => ({ ...prev, [name]: value }));
     }
   };
 
+  // Add new empty education block
   const addEducation = () => {
-    setProfile({
-      ...profile,
-      education: [...profile.education, { institution: '', degree: '', startDate: '', endDate: '' }],
-    });
+    setProfile(prev => ({
+      ...prev,
+      education: [...prev.education, { institution: '', degree: '', startDate: '', endDate: '' }],
+    }));
   };
 
+  // Add new empty experience block
   const addExperience = () => {
-    setProfile({
-      ...profile,
-      experience: [...profile.experience, { company: '', role: '', startDate: '', endDate: '', description: '' }],
-    });
+    setProfile(prev => ({
+      ...prev,
+      experience: [...prev.experience, { company: '', role: '', startDate: '', endDate: '', description: '' }],
+    }));
   };
 
+  // Add skill to skills array if not empty or duplicate
   const addSkill = () => {
-    if (newSkill && !profile.skills.includes(newSkill)) {
-      setProfile({ ...profile, skills: [...profile.skills, newSkill] });
+    if (newSkill.trim() && !profile.skills.includes(newSkill.trim())) {
+      setProfile(prev => ({
+        ...prev,
+        skills: [...prev.skills, newSkill.trim()],
+      }));
       setNewSkill('');
     }
   };
 
+  // Remove skill by index
+  const removeSkill = (index) => {
+    setProfile(prev => ({
+      ...prev,
+      skills: prev.skills.filter((_, i) => i !== index),
+    }));
+  };
+
+  // Submit form data to backend
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       await axios.post('https://jobmatch-ixrz.onrender.com/api/student/profile', profile);
-      alert('Profile updated successfully!');
-      navigate('/student/dashboard');
+      alert('Profile saved successfully!');
+      setIsProfileCreated(true);
+      setEditing(false);
     } catch (error) {
-      console.error('Error updating profile:', error);
-      alert('Failed to update profile');
+      console.error('Error saving profile:', error);
+      alert('Failed to save profile');
+    } finally {
+      setLoading(false);
     }
   };
 
+  if (loading) {
+    return (
+      <div className="p-6 text-center">
+        <p className="text-gray-600">Loading...</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold text-primary mb-6">Complete Your Profile</h1>
-      <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md">
-        {/* Basic Details */}
-        <h2 className="text-xl font-semibold mb-4">Basic Details</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <div>
-            <label className="block text-gray-700">First Name</label>
+    <div className="p-6 max-w-4xl mx-auto">
+      <h1 className="text-3xl font-bold text-primary mb-8">
+        {isProfileCreated ? 'Your Profile' : 'Create Your Profile'}
+      </h1>
+
+      {/* Profile Preview */}
+      {isProfileCreated && !editing && (
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-2xl font-semibold mb-4">Basic Info</h2>
+          <p><strong>Name:</strong> {profile.firstName} {profile.lastName}</p>
+          <p><strong>Address:</strong> {profile.address}</p>
+
+          <h2 className="text-2xl font-semibold mt-6 mb-3">Education</h2>
+          <ul className="list-disc pl-5 space-y-1">
+            {profile.education.map((edu, i) => (
+              <li key={i}>
+                {edu.degree} at {edu.institution} ({edu.startDate} - {edu.endDate})
+              </li>
+            ))}
+          </ul>
+
+          <h2 className="text-2xl font-semibold mt-6 mb-3">Experience</h2>
+          <ul className="list-disc pl-5 space-y-1">
+            {profile.experience.map((exp, i) => (
+              <li key={i}>
+                {exp.role} at {exp.company} ({exp.startDate} - {exp.endDate})
+                {exp.description && <p className="text-sm text-gray-600 mt-1">{exp.description}</p>}
+              </li>
+            ))}
+          </ul>
+
+          <h2 className="text-2xl font-semibold mt-6 mb-3">Skills</h2>
+          <div className="flex flex-wrap gap-2">
+            {profile.skills.map((skill, i) => (
+              <span key={i} className="bg-gray-200 text-gray-700 px-3 py-1 rounded-full">{skill}</span>
+            ))}
+          </div>
+
+          <h2 className="text-2xl font-semibold mt-6 mb-3">Resume</h2>
+          {profile.resume ? (
+            <a href={profile.resume} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
+              View Resume
+            </a>
+          ) : (
+            <p>No resume provided</p>
+          )}
+
+          <Button onClick={() => setEditing(true)} className="mt-8 bg-gray-900 text-white w-full">
+            Edit Profile
+          </Button>
+        </div>
+      )}
+
+      {/* Profile Form */}
+      {(!isProfileCreated || editing) && (
+        <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md mt-6">
+          {/* Basic Info */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <input
-              type="text"
               name="firstName"
               value={profile.firstName}
-              onChange={(e) => handleInputChange(e)}
-              className="w-full p-2 border rounded"
+              onChange={handleInputChange}
+              placeholder="First Name"
+              className="p-2 border rounded"
               required
             />
-          </div>
-          <div>
-            <label className="block text-gray-700">Last Name</label>
             <input
-              type="text"
               name="lastName"
               value={profile.lastName}
-              onChange={(e) => handleInputChange(e)}
-              className="w-full p-2 border rounded"
+              onChange={handleInputChange}
+              placeholder="Last Name"
+              className="p-2 border rounded"
+              required
+            />
+            <input
+              name="address"
+              value={profile.address}
+              onChange={handleInputChange}
+              placeholder="Address"
+              className="md:col-span-2 p-2 border rounded"
               required
             />
           </div>
-          <div className="md:col-span-2">
-            <label className="block text-gray-700">Address</label>
-            <input
-              type="text"
-              name="address"
-              value={profile.address}
-              onChange={(e) => handleInputChange(e)}
-              className="w-full p-2 border rounded"
-            />
-          </div>
-        </div>
 
-        {/* Education */}
-        <h2 className="text-xl font-semibold mb-4">Education</h2>
-        {profile.education.map((edu, index) => (
-          <div key={index} className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-              <label className="block text-gray-700">Institution</label>
+          {/* Education */}
+          <h2 className="font-semibold mb-3 text-xl">Education</h2>
+          {profile.education.map((edu, index) => (
+            <div key={index} className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <input
-                type="text"
                 name="institution"
                 value={edu.institution}
                 onChange={(e) => handleInputChange(e, 'education', index)}
-                className="w-full p-2 border rounded"
+                placeholder="Institution"
+                className="p-2 border rounded"
+                required
               />
-            </div>
-            <div>
-              <label className="block text-gray-700">Degree</label>
               <input
-                type="text"
                 name="degree"
                 value={edu.degree}
                 onChange={(e) => handleInputChange(e, 'education', index)}
-                className="w-full p-2 border rounded"
+                placeholder="Degree"
+                className="p-2 border rounded"
+                required
               />
-            </div>
-            <div>
-              <label className="block text-gray-700">Start Date</label>
               <input
                 type="date"
                 name="startDate"
                 value={edu.startDate}
                 onChange={(e) => handleInputChange(e, 'education', index)}
-                className="w-full p-2 border rounded"
+                className="p-2 border rounded"
+                required
               />
-            </div>
-            <div>
-              <label className="block text-gray-700">End Date</label>
               <input
                 type="date"
                 name="endDate"
                 value={edu.endDate}
                 onChange={(e) => handleInputChange(e, 'education', index)}
-                className="w-full p-2 border rounded"
+                className="p-2 border rounded"
+                required
               />
             </div>
-          </div>
-        ))}
-        <button
-          type="button"
-          onClick={addEducation}
-          className="text-secondary hover:underline mb-6"
-        >
-          + Add Education
-        </button>
+          ))}
+          <button
+            type="button"
+            onClick={addEducation}
+            className="text-blue-600 hover:underline mb-6"
+          >
+            + Add Education
+          </button>
 
-        {/* Experience */}
-        <h2 className="text-xl font-semibold mb-4">Experience</h2>
-        {profile.experience.map((exp, index) => (
-          <div key={index} className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-              <label className="block text-gray-700">Company</label>
+          {/* Experience */}
+          <h2 className="font-semibold mb-3 text-xl">Experience</h2>
+          {profile.experience.map((exp, index) => (
+            <div key={index} className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <input
-                type="text"
                 name="company"
                 value={exp.company}
                 onChange={(e) => handleInputChange(e, 'experience', index)}
-                className="w-full p-2 border rounded"
+                placeholder="Company"
+                className="p-2 border rounded"
+                required
               />
-            </div>
-            <div>
-              <label className="block text-gray-700">Role</label>
               <input
-                type="text"
                 name="role"
                 value={exp.role}
                 onChange={(e) => handleInputChange(e, 'experience', index)}
-                className="w-full p-2 border rounded"
+                placeholder="Role"
+                className="p-2 border rounded"
+                required
               />
-            </div>
-            <div>
-              <label className="block text-gray-700">Start Date</label>
               <input
                 type="date"
                 name="startDate"
                 value={exp.startDate}
                 onChange={(e) => handleInputChange(e, 'experience', index)}
-                className="w-full p-2 border rounded"
+                className="p-2 border rounded"
+                required
               />
-            </div>
-            <div>
-              <label className="block text-gray-700">End Date</label>
               <input
                 type="date"
                 name="endDate"
                 value={exp.endDate}
                 onChange={(e) => handleInputChange(e, 'experience', index)}
-                className="w-full p-2 border rounded"
+                className="p-2 border rounded"
+                required
               />
-            </div>
-            <div className="md:col-span-2">
-              <label className="block text-gray-700">Description</label>
               <textarea
                 name="description"
                 value={exp.description}
                 onChange={(e) => handleInputChange(e, 'experience', index)}
-                className="w-full p-2 border rounded"
-                rows="3"
+                placeholder="Description"
+                className="md:col-span-2 p-2 border rounded"
+                rows={3}
               />
             </div>
-          </div>
-        ))}
-        <button
-          type="button"
-          onClick={addExperience}
-          className="text-secondary hover:underline mb-6"
-        >
-          + Add Experience
-        </button>
-
-        {/* Skills */}
-        <h2 className="text-xl font-semibold mb-4">Skills</h2>
-        <div className="flex items-center mb-4">
-          <input
-            type="text"
-            value={newSkill}
-            onChange={(e) => setNewSkill(e.target.value)}
-            className="w-full p-2 border rounded mr-2"
-            placeholder="Add a skill (e.g., React)"
-          />
+          ))}
           <button
             type="button"
-            onClick={addSkill}
-            className="text-white bg-gray-900 px-4 py-2 rounded"
+            onClick={addExperience}
+            className="text-blue-600 hover:underline mb-6"
           >
-            Add
+            + Add Experience
           </button>
-        </div>
-        <div className="flex flex-wrap gap-2 mb-6">
-          {profile.skills.map((skill, index) => (
-            <span
-              key={index}
-              className="bg-gray-200 text-gray-700 px-3 py-1 rounded-full"
-            >
-              {skill}
-            </span>
-          ))}
-        </div>
 
-        {/* Resume */}
-        <h2 className="text-xl font-semibold mb-4">Resume</h2>
-        <div className="mb-6">
-          <label className="block text-gray-700">Resume URL</label>
+          {/* Skills */}
+          <h2 className="font-semibold mb-3 text-xl">Skills</h2>
+          <div className="flex items-center gap-2 mb-4">
+            <input
+              type="text"
+              value={newSkill}
+              onChange={(e) => setNewSkill(e.target.value)}
+              placeholder="Add skill"
+              className="p-2 border rounded w-full"
+            />
+            <button
+              type="button"
+              onClick={addSkill}
+              className="bg-gray-900 text-white px-4 py-2 rounded hover:bg-gray-700 transition"
+            >
+              Add
+            </button>
+          </div>
+          <div className="flex flex-wrap gap-2 mb-6">
+            {profile.skills.map((skill, i) => (
+              <div
+                key={i}
+                className="flex items-center gap-1 bg-gray-200 text-gray-700 px-3 py-1 rounded-full"
+              >
+                <span>{skill}</span>
+                <button
+                  type="button"
+                  onClick={() => removeSkill(i)}
+                  className="text-red-600 font-bold"
+                  title="Remove skill"
+                >
+                  &times;
+                </button>
+              </div>
+            ))}
+          </div>
+
+          {/* Resume URL */}
+          <h2 className="font-semibold mb-2 text-xl">Resume URL</h2>
           <input
-            type="text"
+            type="url"
             name="resume"
             value={profile.resume}
-            onChange={(e) => handleInputChange(e)}
-            className="w-full p-2 border rounded"
-            placeholder="e.g., https://example.com/resume.pdf"
+            onChange={handleInputChange}
+            placeholder="https://example.com/resume.pdf"
+            className="w-full p-2 border rounded mb-6"
           />
-        </div>
 
-        <Button type="submit" className="w-full bg-gray-900">Save Profile</Button>
-      </form>
+          <Button type="submit" className="w-full bg-gray-900 text-white hover:bg-gray-700 transition">
+            Save Profile
+          </Button>
+        </form>
+      )}
     </div>
   );
 };

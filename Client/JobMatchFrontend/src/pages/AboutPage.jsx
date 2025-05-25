@@ -1,87 +1,115 @@
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import Button from '../components/Button';
 
 const AboutPage = () => {
   return (
-    <div className="min-h-screen bg-gray-900">
+    <div className="min-h-screen bg-gray-950 text-white font-sans">
+
       {/* Hero Section */}
-      <section className="bg-primary text-white py-20">
-        <div className="container mx-auto px-6 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            About JobMatch
+      <section className="relative py-24 px-6 bg-gradient-to-br from-indigo-800 via-purple-900 to-gray-900">
+        <div className="absolute inset-0 bg-[url('/images/about-hero.jpg')] bg-cover bg-center opacity-10"></div>
+        <motion.div
+          initial={{ opacity: 0, y: -40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1 }}
+          className="relative max-w-4xl mx-auto text-center z-10"
+        >
+          <h1 className="text-5xl font-bold mb-4 tracking-tight">
+            About <span className="text-purple-400">JobMatch</span>
           </h1>
-          <p className="text-lg md:text-xl mb-6">
+          <p className="text-xl text-gray-200 mb-6">
             Empowering International Students to Find Their Dream Jobs Globally
           </p>
           <Link to="/register">
-              <Button className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-semibold px-6 py-3 rounded-xl shadow-md hover:shadow-lg transition duration-300">
-    Get Started
-  </Button>
+            <Button className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-2xl transition duration-300">
+              Get Started
+            </Button>
           </Link>
-        </div>
+        </motion.div>
       </section>
 
       {/* Mission Section */}
-      <section className="py-16">
-        <div className="container mx-auto px-6">
-          <h2 className="text-3xl font-bold text-white mb-6 text-center">
-            Our Mission
-          </h2>
-          <p className="text-white text-lg text-center max-w-3xl mx-auto">
-            JobMatch is dedicated to helping international students who are struggling to find jobs by connecting them with employers worldwide. We understand the challenges of navigating the job market as a student, especially in a foreign country. Our platform uses AI to match you with opportunities that fit your skills, education, and experience, making the job search easier and more effective.
+      <section className="py-20 px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          className="max-w-3xl mx-auto text-center"
+        >
+          <h2 className="text-4xl font-bold mb-6">Our Mission</h2>
+          <p className="text-lg text-gray-300 leading-relaxed">
+            JobMatch is dedicated to helping international students struggling to find jobs by connecting them with employers worldwide. We use AI to match you with opportunities that fit your skills and education, making your job search easier and more effective.
           </p>
-        </div>
+        </motion.div>
       </section>
 
       {/* Features Section */}
-      <section className="bg-white py-16">
-        <div className="container mx-auto px-6">
-          <h2 className="text-3xl font-bold text-primary mb-12 text-center">
-            Why Choose JobMatch?
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="text-5xl text-secondary mb-4">🤖</div>
-              <h3 className="text-xl font-semibold mb-2">AI-Powered Job Matching</h3>
-              <p className="text-gray-600">
-                Our advanced AI algorithms analyze your profile and recommend jobs that align with your skills and aspirations, giving you a higher chance of success.
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="text-5xl text-secondary mb-4">🌍</div>
-              <h3 className="text-xl font-semibold mb-2">Global Opportunities</h3>
-              <p className="text-gray-600">
-                Access job postings from employers around the world, tailored specifically for international students seeking opportunities abroad.
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="text-5xl text-secondary mb-4">💬</div>
-              <h3 className="text-xl font-semibold mb-2">Direct Communication</h3>
-              <p className="text-gray-600">
-                Chat directly with employers after applying, allowing you to follow up on your application and build connections effortlessly.
-              </p>
-            </div>
+      <section className="bg-white text-gray-800 py-20 px-6">
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+          className="max-w-6xl mx-auto"
+        >
+          <h2 className="text-4xl font-bold text-center mb-12 text-gray-900">Why Choose JobMatch?</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+            {[
+              {
+                icon: "🤖",
+                title: "AI-Powered Job Matching",
+                desc: "Our smart AI recommends jobs based on your skills and profile to boost your chances of success.",
+              },
+              {
+                icon: "🌍",
+                title: "Global Opportunities",
+                desc: "Access curated job listings from around the world, tailored for international students.",
+              },
+              {
+                icon: "💬",
+                title: "Direct Communication",
+                desc: "Chat with employers directly to follow up on your application and build your network.",
+              },
+            ].map((item, idx) => (
+              <motion.div
+                key={idx}
+                whileHover={{ scale: 1.05 }}
+                className="bg-white rounded-2xl p-8 shadow-xl text-center border border-gray-200"
+              >
+                <div className="text-5xl mb-4">{item.icon}</div>
+                <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
+                <p className="text-gray-600">{item.desc}</p>
+              </motion.div>
+            ))}
           </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* Call to Action Section */}
-      <section className="bg-primary text-white py-16">
-        <div className="container mx-auto px-6 text-center">
-          <h2 className="text-3xl font-bold mb-4">
-            Ready to Find Your Perfect Job?
-          </h2>
-          <p className="text-lg mb-6">
-            Join thousands of international students who have found their dream jobs with JobMatch.
+      <section className="bg-gradient-to-br from-indigo-700 via-purple-700 to-gray-800 text-white py-20 text-center px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1 }}
+          viewport={{ once: true }}
+          className="max-w-2xl mx-auto"
+        >
+          <h2 className="text-4xl font-bold mb-4">Ready to Find Your Perfect Job?</h2>
+          <p className="text-lg mb-6 text-gray-300">
+            Join thousands of students who have landed their dream jobs with JobMatch.
           </p>
           <Link to="/register?role=student">
-            <Button className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-semibold px-6 py-3 rounded-xl shadow-md hover:shadow-lg transition duration-300">Sign Up as a Student</Button>
+            <Button className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition duration-300">
+              Sign Up as a Student
+            </Button>
           </Link>
-        </div>
+        </motion.div>
       </section>
 
       {/* Footer */}
-      <footer className="text-center py-6 text-gray-600">
+      <footer className="text-center py-6 text-gray-500 bg-gray-950 border-t border-gray-800">
         © 2024 JobMatch Platform. All rights reserved.
       </footer>
     </div>

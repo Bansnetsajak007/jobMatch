@@ -1,130 +1,19 @@
-
-// import { useState } from 'react';
-// import { useNavigate } from 'react-router-dom';
-// import { useAuth } from '../context/AuthContext';
-// import Button from '../components/Button';
-// import axios from 'axios';
-
-// const LoginPage = () => {
-//   const [email, setEmail] = useState('');
-//   const [password, setPassword] = useState('');
-//   const [error, setError] = useState('');
-//   const { login } = useAuth();
-//   const navigate = useNavigate();
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-//     try {
-//       await login(email, password);
-//       const { user } = useAuth();
-//       if (user.role === 'student') {
-//         const res = await axios.get('https://jobmatch-ixrz.onrender.com/api/student/profile');
-//         const profile = res.data;
-//         let filledFields = 0;
-//         let totalFields = 0;
-
-//         const basicFields = ['firstName', 'lastName', 'address'];
-//         totalFields += basicFields.length;
-//         filledFields += basicFields.filter(field => profile[field] && profile[field].trim() !== '').length;
-
-//         totalFields += profile.education.length * 4;
-//         profile.education.forEach(edu => {
-//           if (edu.institution) filledFields++;
-//           if (edu.degree) filledFields++;
-//           if (edu.startDate) filledFields++;
-//           if (edu.endDate) filledFields++;
-//         });
-
-//         totalFields += profile.experience.length * 5;
-//         profile.experience.forEach(exp => {
-//           if (exp.company) filledFields++;
-//           if (exp.role) filledFields++;
-//           if (exp.startDate) filledFields++;
-//           if (exp.endDate) filledFields++;
-//           if (exp.description) filledFields++;
-//         });
-
-//         totalFields += 1;
-//         if (profile.skills.length > 0) filledFields++;
-
-//         totalFields += 1;
-//         if (profile.resume) filledFields++;
-
-//         const percentage = totalFields > 0 ? Math.round((filledFields / totalFields) * 100) : 0;
-
-//         if (percentage < 50) {
-//           navigate('/student/profile');
-//         } else {
-//           navigate('/student/dashboard');
-//         }
-//       } else if (user.role === 'employer') {
-//         try {
-//           await axios.get('https://jobmatch-ixrz.onrender.com/api/employer/profile');
-//           navigate('/employer/dashboard');
-//         } catch (error) {
-//           // Profile not found, redirect to create profile
-//           navigate('/employer/profile');
-//         }
-//       }
-//     } catch (err) {
-//       setError('Invalid credentials');
-//     }
-//   };
-
-//   return (
-//     <div className="min-h-screen flex items-center justify-center bg-gray-100">
-//       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-//         <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
-//         {error && <p className="text-red-500 mb-4">{error}</p>}
-//         <form onSubmit={handleSubmit}>
-//           <div className="mb-4">
-//             <label className="block text-gray-700">Email</label>
-//             <input
-//               type="email"
-//               value={email}
-//               onChange={(e) => setEmail(e.target.value)}
-//               className="w-full p-2 border rounded"
-//               required
-//             />
-//           </div>
-//           <div className="mb-6">
-//             <label className="block text-gray-700">Password</label>
-//             <input
-//               type="password"
-//               value={password}
-//               onChange={(e) => setPassword(e.target.value)}
-//               className="w-full p-2 border rounded"
-//               required
-//             />
-//           </div>
-//           <Button type="submit" className="w-full bg-gray-900 text-white font-semibold py-2 rounded-lg hover:bg-gray-800 transition duration-300 shadow-md">
-//              Login
-//           </Button>
-
-//         </form>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default LoginPage;
-
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/Button';
 import axios from 'axios';
+import { FaEnvelope, FaLock } from 'react-icons/fa';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState('student');
   const [error, setError] = useState('');
   const { login, user, loading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Redirect based on profile completion after login
     if (user) {
       if (user.role === 'student') {
         const checkProfile = async () => {
@@ -132,114 +21,111 @@ const LoginPage = () => {
             const res = await axios.get('https://jobmatch-ixrz.onrender.com/api/student/profile', {
               withCredentials: true,
             });
+
             const profile = res.data;
-            let filledFields = 0;
-            let totalFields = 0;
+            let filled = 0;
+            let total = ['firstName', 'lastName', 'address'].length;
 
-            const basicFields = ['firstName', 'lastName', 'address'];
-            totalFields += basicFields.length;
-            filledFields += basicFields.filter(field => profile[field] && profile[field].trim() !== '').length;
+            filled += ['firstName', 'lastName', 'address'].filter(k => profile[k]?.trim()).length;
 
-            totalFields += profile.education.length * 4;
-            profile.education.forEach(edu => {
-              if (edu.institution) filledFields++;
-              if (edu.degree) filledFields++;
-              if (edu.startDate) filledFields++;
-              if (edu.endDate) filledFields++;
+            profile.education.forEach(e => {
+              total += 4;
+              filled += ['institution', 'degree', 'startDate', 'endDate'].filter(k => e[k]?.trim()).length;
             });
 
-            totalFields += profile.experience.length * 5;
-            profile.experience.forEach(exp => {
-              if (exp.company) filledFields++;
-              if (exp.role) filledFields++;
-              if (exp.startDate) filledFields++;
-              if (exp.endDate) filledFields++;
-              if (exp.description) filledFields++;
+            profile.experience.forEach(e => {
+              total += 5;
+              filled += ['company', 'role', 'startDate', 'endDate', 'description'].filter(k => e[k]?.trim()).length;
             });
 
-            totalFields += 1;
-            if (profile.skills.length > 0) filledFields++;
+            total += 1;
+            if (profile.skills.length) filled++;
 
-            totalFields += 1;
-            if (profile.resume) filledFields++;
+            total += 1;
+            if (profile.resume) filled++;
 
-            const percentage = totalFields > 0 ? Math.round((filledFields / totalFields) * 100) : 0;
-
-            if (percentage < 50) {
-              navigate('/student/profile');
-            } else {
-              navigate('/student/dashboard');
-            }
-          } catch (error) {
-            // Profile not found, redirect to create profile
+            const percent = Math.round((filled / total) * 100);
+            navigate(percent < 50 ? '/student/profile' : '/student/dashboard');
+          } catch {
             navigate('/student/profile');
           }
         };
         checkProfile();
       } else if (user.role === 'employer') {
-        const checkEmployerProfile = async () => {
-          try {
-            // await axios.get('https://jobmatch-ixrz.onrender.com/api/employer/profile', {
-            //   withCredentials: true,
-            // });
-            navigate('/employer/profile');
-          } catch (error) {
-            // Profile not found, redirect to create profile
-            navigate('/employer/profile');
-          }
-        };
-        checkEmployerProfile();
+        navigate('/employer/profile');
       }
     }
-  }, [user, navigate]);
+  }, [user]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     try {
-      await login(email, password);
-      // Redirect happens via useEffect
+      await login(email, password, role); // pass role to login function
     } catch (error) {
-      console.error('Login error:', error);
       setError(error.response?.data?.message || 'Invalid credentials');
     }
   };
 
-  if (loading) {
-    return <div className="text-center">Loading...</div>;
-  }
+  if (loading) return <div className="text-center py-10">Loading...</div>;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
-        {error && <p className="text-red-500 mb-4">{error}</p>}
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-gray-700">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-2 border rounded"
-              required
-            />
-          </div>
-          <div className="mb-6">
-            <label className="block text-gray-700">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-2 border rounded"
-              required
-            />
-          </div>
-          <Button
-            type="submit"
-            className="w-full bg-gray-900 text-white font-semibold py-2 rounded-lg hover:bg-gray-800 transition duration-300 shadow-md"
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-300 px-4">
+      <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
+        <h2 className="text-3xl font-bold text-center mb-6 text-gray-800">Welcome Back</h2>
+
+        <div className="flex justify-center gap-4 mb-4">
+          <button
+            type="button"
+            className={`px-4 py-1 rounded-full border ${role === 'student' ? 'bg-gray-900 text-white' : 'bg-gray-200 text-gray-700'}`}
+            onClick={() => setRole('student')}
           >
-            Login
+            Student
+          </button>
+          <button
+            type="button"
+            className={`px-4 py-1 rounded-full border ${role === 'employer' ? 'bg-gray-900 text-white' : 'bg-gray-200 text-gray-700'}`}
+            onClick={() => setRole('employer')}
+          >
+            Employer
+          </button>
+        </div>
+
+        {error && <p className="text-red-600 mb-4 text-sm">{error}</p>}
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label className="block mb-1 font-semibold text-gray-700">Email</label>
+            <div className="flex items-center border rounded px-3">
+              <FaEnvelope className="text-gray-400 mr-2" />
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full p-2 outline-none"
+                placeholder="Enter your email"
+                required
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block mb-1 font-semibold text-gray-700">Password</label>
+            <div className="flex items-center border rounded px-3">
+              <FaLock className="text-gray-400 mr-2" />
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full p-2 outline-none"
+                placeholder="Enter your password"
+                required
+              />
+            </div>
+          </div>
+
+          <Button type="submit" className="w-full bg-gray-900 text-white py-2 rounded-lg hover:bg-gray-800 transition duration-300 shadow-md">
+            Login as {role.charAt(0).toUpperCase() + role.slice(1)}
           </Button>
         </form>
       </div>
