@@ -88,9 +88,15 @@ router.get('/:id', async (req, res) => {
 });
 
 // POST /api/jobs/:id/apply - Apply to a job (moved after /:id)
-router.post('/:id/apply', auth, upload, async (req, res) => {
+router.post('/:id/apply', auth, async (req, res) => {
   if (req.user.role !== 'student') {
     return res.status(403).json({ message: 'Access denied' });
+  }
+
+  const { resume, coverLetter } = req.body;
+
+  if (!resume || !coverLetter) {
+    return res.status(400).json({ message: 'Resume and cover letter are required' });
   }
 
   try {
@@ -99,23 +105,26 @@ router.post('/:id/apply', auth, upload, async (req, res) => {
       return res.status(404).json({ message: 'Job not found' });
     }
 
-    const alreadyApplied = job.applications.some(app => app.student.toString() === req.user.id);
+    const alreadyApplied = job.applications.some(
+      (app) => app.student.toString() === req.user.id
+    );
     if (alreadyApplied) {
       return res.status(400).json({ message: 'Already applied' });
     }
 
     const application = {
       student: req.user.id,
-      resume: req.files.resume ? req.files.resume[0].path : 'https://example.com/dummy/resume.pdf',
-      coverLetter: req.files.coverLetter ? req.files.coverLetter[0].path : 'https://example.com/dummy/coverletter.pdf',
+      resume,       // Now storing as text
+      coverLetter,  // Now storing as text
     };
 
     job.applications.push(application);
     await job.save();
 
-    res.json({ message: 'Application submitted' });
+    res.json({ message: 'Application submitted successfully!' });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Application error:', error);
+    res.status(500).json({ message: 'Server error. Please try again later.' });
   }
 });
 
