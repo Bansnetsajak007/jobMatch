@@ -1,6 +1,6 @@
 # 🎯 JobMatch - Full Stack Job Matching Platform
 
-**JobMatch** is a MERN-based web application built as part of a college software engineering assignment. It connects **students** looking for job opportunities with **employers** offering internships or positions. The system includes a separate **admin panel**, **chat functionality**, **role-based profiles**, and **file uploads**.
+**JobMatch** is a MERN-based web application built as part of a college software engineering assignment. It connects **students** looking for job opportunities with **employers** offering internships or positions. The system includes a separate **admin panel**, **role-based profiles**, **Job Apply**, **Profile completion**.
 
 ---
 
