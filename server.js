@@ -89,6 +89,7 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/student', require('./routes/student'));
 app.use('/api/employer', require('./routes/employer'));
 app.use('/api/jobs', require('./routes/job'));
+app.use('/api/admin', require('./routes/admin')); // Admin routes
 app.use('/api/chat', require('./routes/chat'));
 
 // Socket.IO for real-time chat
