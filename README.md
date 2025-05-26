@@ -54,7 +54,7 @@ jobMatch/
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/Bansnetsajak007/jobMatch.git
+git clone <Github URL>
 cd jobMatch
 ```
 
